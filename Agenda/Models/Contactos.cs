@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Agenda.Models
 {
@@ -21,6 +22,12 @@ namespace Agenda.Models
 
         [Required]
         public int categoriaId { get; set; }
-        public Categorias categorias { get; set; }
+        [ForeignKey("categoriaId")]
+        public virtual Categorias categorias { get; set; }
+
+        [Required]
+        public int riesgoId { get; set; }
+        [ForeignKey("riesgoId")]
+        public virtual Riesgo Riesgo { get; set; }
     }
 }

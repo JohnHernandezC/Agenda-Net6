@@ -12,5 +12,6 @@ namespace Agenda.Models
         [DataType(DataType.Date)]
         [Display(Name ="Fecha De Creacion")]
         public DateTime? FechaCreacion { get; set; }
+        public virtual ICollection<Contactos> Contactos { get; set; }
     }
 }

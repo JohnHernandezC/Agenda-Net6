@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Agenda.Data;
 using Agenda.Models;
-using Agenda.Models.ViewModels;
 
 namespace Agenda.Controllers
 {
@@ -23,7 +22,8 @@ namespace Agenda.Controllers
         // GET: Contactos
         public async Task<IActionResult> Index()
         {
-              return View(await _context.contacto.ToListAsync());
+            var applicationDbContext = _context.contacto.Include(c => c.Riesgo).Include(c => c.categorias);
+            return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: Contactos/Details/5
@@ -35,6 +35,8 @@ namespace Agenda.Controllers
             }
 
             var contactos = await _context.contacto
+                .Include(c => c.Riesgo)
+                .Include(c => c.categorias)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (contactos == null)
             {
@@ -47,6 +49,8 @@ namespace Agenda.Controllers
         // GET: Contactos/Create
         public IActionResult Create()
         {
+            ViewData["riesgoId"] = new SelectList(_context.riesgos, "Id", "Name");
+            ViewData["categoriaId"] = new SelectList(_context.categoria, "Id", "Nombre");
             return View();
         }
 
@@ -55,15 +59,17 @@ namespace Agenda.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Nombre,Email,Telefono,FechaCreacion,categoriaId")] CrearContactoVM crearcontactoVM)
+        public async Task<IActionResult> Create([Bind("Id,Nombre,Email,Telefono,FechaCreacion,categoriaId,riesgoId")] Contactos contactos)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(crearcontactoVM);
+                _context.Add(contactos);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(crearcontactoVM);
+            ViewData["riesgoId"] = new SelectList(_context.riesgos, "Id", "Name", contactos.riesgoId);
+            ViewData["categoriaId"] = new SelectList(_context.categoria, "Id", "Nombre", contactos.categoriaId);
+            return View(contactos);
         }
 
         // GET: Contactos/Edit/5
@@ -79,6 +85,8 @@ namespace Agenda.Controllers
             {
                 return NotFound();
             }
+            ViewData["riesgoId"] = new SelectList(_context.riesgos, "Id", "Name", contactos.riesgoId);
+            ViewData["categoriaId"] = new SelectList(_context.categoria, "Id", "Nombre", contactos.categoriaId);
             return View(contactos);
         }
 
@@ -87,7 +95,7 @@ namespace Agenda.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Nombre,Email,Telefono,FechaCreacion,categoriaId")] Contactos contactos)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Nombre,Email,Telefono,FechaCreacion,categoriaId,riesgoId")] Contactos contactos)
         {
             if (id != contactos.Id)
             {
@@ -114,6 +122,8 @@ namespace Agenda.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["riesgoId"] = new SelectList(_context.riesgos, "Id", "Name", contactos.riesgoId);
+            ViewData["categoriaId"] = new SelectList(_context.categoria, "Id", "Nombre", contactos.categoriaId);
             return View(contactos);
         }
 
@@ -126,6 +136,8 @@ namespace Agenda.Controllers
             }
 
             var contactos = await _context.contacto
+                .Include(c => c.Riesgo)
+                .Include(c => c.categorias)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (contactos == null)
             {

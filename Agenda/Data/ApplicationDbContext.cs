@@ -13,6 +13,7 @@ namespace Agenda.Data
 
         public DbSet<Categorias> categoria { get; set; }
         public DbSet<Contactos> contacto { get; set; }
+        public DbSet<Riesgo> riesgos { get; set; }
 
     }
 }
